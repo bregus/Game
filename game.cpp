@@ -203,15 +203,15 @@ int main ()
 						break;
 						}
 					}
-					break;
-				}
+				break;
+			}
 				case 2: 
 				{
 					return 0;
 				}
-			}
 		}
 	}
+
 
 	
 	return 0;

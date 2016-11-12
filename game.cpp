@@ -21,6 +21,8 @@ struct info
 	int hit;
 	int hp;
 	int energy;
+	int critical;
+	int critical_hit;
 };
 
 class human
@@ -28,10 +30,15 @@ class human
 	info _info;
 public:
 	human ()
-	{_info.hp = 100; _info.energy = 100; _info.hit = 10; _info.dodge = 20;}
+	{_info.hp = 100; _info.energy = 100; _info.hit = 10; _info.dodge = 20; _info.critical_hit=_info.hit;}
 
 	void Hit_hp(int hp)
 	{_info.hp -= hp;}
+
+	void Hit_hp_crit(int hp)
+	{
+		_info.hp -= hp;
+	}
 
 	void Hit_Magic(int hp)
 	{
@@ -43,19 +50,23 @@ public:
 		_info.energy-=energy;
 	}
 
-	void Set_Stats(int strenght, int agility, int stamina)
+	void Set_Stats(int strenght, int agility, int stamina, int critical)
 	{
 		_info.strenght = strenght;
 		_info.agility = agility;
 		_info.stamina = stamina;
+		_info.critical = critical;
 		Exchange_stats();
 	}
 
 	void Exchange_stats()
 	{
+		if (_info.critical !=0)
+		_info.critical_hit = _info.hit*_info.critical;
 		_info.hp +=_info.stamina*20;
 		_info.hit +=_info.strenght*2;
 		_info.dodge +=_info.agility*10;
+
 	}
 
 	int Energy()
@@ -72,6 +83,8 @@ public:
 	{return _info.hit;}
 	int Dodge()
 	{return _info.dodge;}
+	int Crit()
+	{return _info.critical_hit;}
 };
 
 void Set_points(int & point, int & points)
@@ -93,13 +106,16 @@ void print_end_of_chose ()
 			cout << "You set your main stats!";
 			cout << endl <<"=========================================="<<endl;
 }
+
 void choose_stats(human &data) {
 	int points = 5;
-	int Strenght = 0 , Agility = 0, Stamina = 0;
+	int Strenght = 0 , Agility = 0, Stamina = 0, Critical=0;
+	
 	cout << "\nChose amount of your main characteristics (Strenght, Agility, Stamina):" << endl;
-	printf("You have %d points. \n", points);
-	cout << "Strenght: "; cin >> Strenght;
-	Set_points (Strenght, points);
+
+		printf("You have %d points. \n", points);
+		cout << "Strenght: "; cin >> Strenght;
+		Set_points (Strenght, points);
 		
 	if (points != 0)
 	{
@@ -113,7 +129,13 @@ void choose_stats(human &data) {
 		cout << "Stamina: "; cin >> Stamina;
 		Set_points (Stamina, points);
 	}
-	data.Set_Stats(Strenght, Agility, Stamina);
+	if (points != 0)
+	{
+		printf("You have %d points. \n", points);
+		cout << "Critical: "; cin >> Critical;
+		Set_points (Critical, points);
+	}
+	data.Set_Stats(Strenght, Agility, Stamina,Critical);
 }
 
 int main ()
@@ -135,14 +157,14 @@ int main ()
 				
 				choose_stats(var1);
 				choose_stats(var2);
-				print_player_stats(var1, var2);
+				
 	
 				while(true)
 				{
 		
 					if (var1.hp() <= 0)
 					{
-						cls();
+						
 						cout << endl <<"=========================================="<<endl;
 						cout << "               !!!Player Two Win!!! ";
 						cout << endl <<"=========================================="<<endl;
@@ -151,7 +173,7 @@ int main ()
 
 					if (var2.hp() <= 0)
 					{
-						cls();
+						
 						cout << endl <<"=========================================="<<endl;
 						cout << "               !!!Player One Win!!! ";
 						cout << endl <<"=========================================="<<endl;
@@ -168,7 +190,7 @@ int main ()
 					else
 					{cout << "........Second player turn........... "<< endl;}
 					//cin >> var;
-					var = 1;
+					cin >> var;
 					switch(var)
 					{
 						case 1: 
@@ -184,8 +206,15 @@ int main ()
 									cout << endl <<"=========================================="<<endl;
 									break;
 								}
-								var2.Hit_hp(var1.Hit());
-								cout << "\n       HIT : " << var1.Hit() << endl;
+								if (rand() % 100 < 50)
+								{
+									var2.Hit_hp_crit(var1.Crit());
+									cout << "\n       CRIT : "<<var1.Crit() << endl; 
+								}
+								else{
+									var2.Hit_hp(var1.Hit());
+									cout << "\n       HIT : " << var1.Hit() << endl;
+								}
 							}
 							else 
 							{	
@@ -197,22 +226,31 @@ int main ()
 									cout << endl <<"=========================================="<<endl;
 									break;	
 								}
-								var1.Hit_hp(var2.Hit());
-								cout << "\n       HIT : " << var2.Hit() << endl;
+								if (rand() % 100 < 50)
+								{
+									var1.Hit_hp_crit(var2.Crit());
+									cout << "\n       CRIT : "<<var2.Crit() << endl; 
+								}
+								else
+								{
+									var1.Hit_hp(var2.Hit());
+									cout << "\n       HIT : " << var2.Hit() << endl;
+								}
 					    	}
-						break;
-						}
+							break;
+							}
 					}
+				}
 				break;
 			}
-				case 2: 
-				{
-					return 0;
-				}
+			case 2: 
+			{
+				return 0;
+			}
 		}
 	}
 
-
+	system("pause");
 	
 	return 0;
 }

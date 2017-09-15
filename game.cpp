@@ -5,7 +5,7 @@
 using namespace std;
 
 
-#define Miss 20
+#define MISS 20
 #define Start_Hit 10
 #define Hit_Magic_hp 15
 #define Mana 50
@@ -30,7 +30,7 @@ class human
 	info _info;
 public:
 	human ()
-	{_info.hp = 100; _info.energy = 100; _info.hit = 10; _info.dodge = 20; _info.critical_hit=_info.hit;}
+	{_info.hp = 100; _info.energy = 100; _info.hit = 10; _info.dodge = MISS; _info.critical_hit=_info.hit; _info.critical = 2;}
 
 	void Hit_hp(int hp)
 	{_info.hp -= hp;}
@@ -50,23 +50,26 @@ public:
 		_info.energy-=energy;
 	}
 
+	void ResetStatsAfterBattle() 
+	{
+		_info.hp = 100 + _info.stamina*20;
+	}
+
 	void Set_Stats(int strenght, int agility, int stamina, int critical)
 	{
 		_info.strenght = strenght;
 		_info.agility = agility;
 		_info.stamina = stamina;
-		_info.critical = critical;
+		_info.critical += critical;
 		Exchange_stats();
 	}
 
 	void Exchange_stats()
 	{
-		if (_info.critical !=0)
-		_info.critical_hit = _info.hit*_info.critical;
 		_info.hp +=_info.stamina*20;
 		_info.hit +=_info.strenght*2;
 		_info.dodge +=_info.agility*10;
-
+		_info.critical_hit = _info.hit*(_info.critical);
 	}
 
 	int Energy()
@@ -111,11 +114,11 @@ void choose_stats(human &data) {
 	int points = 5;
 	int Strenght = 0 , Agility = 0, Stamina = 0, Critical=0;
 	
-	cout << "\nChose amount of your main characteristics (Strenght, Agility, Stamina):" << endl;
-
-		printf("You have %d points. \n", points);
-		cout << "Strenght: "; cin >> Strenght;
-		Set_points (Strenght, points);
+	cout << "\nChose amount of your main characteristics (Strenght, Agility, Stamina, Critical Hit):" << endl;
+	cout << "You have only 5 point for all main characteristics (Strenght, Agility, Stamina, Critical Hit)." << endl;
+	printf("You have %d points. \n", points);		
+	cout << "Strenght: "; cin >> Strenght;
+	Set_points (Strenght, points);
 		
 	if (points != 0)
 	{
@@ -138,30 +141,10 @@ void choose_stats(human &data) {
 	data.Set_Stats(Strenght, Agility, Stamina,Critical);
 }
 
-int main ()
+void battleProcess(human & var1, human & var2)
 {
-	srand(time(0));
-	int var;
-	
-	while(true) {
-		cout << "1. Play.\n";
-		cout << "2. Exit.\n";
-		cout << ">>>>>>";
-		cin >> var;
-		switch (var) 
-		{
-			case 1: 
-			{	
-				human var1;
-				human var2;
-				
-				choose_stats(var1);
-				choose_stats(var2);
-				
-	
-				while(true)
+	while(true)
 				{
-		
 					if (var1.hp() <= 0)
 					{
 						
@@ -189,8 +172,10 @@ int main ()
 					{cout << "........First player turn............ "<< endl;}
 					else
 					{cout << "........Second player turn........... "<< endl;}
+					
+					int var;
 					//cin >> var;
-					cin >> var;
+					var = 1;
 					switch(var)
 					{
 						case 1: 
@@ -241,16 +226,48 @@ int main ()
 							}
 					}
 				}
+}
+
+int main ()
+{
+	srand(time(0));
+	int var;
+	human var1;
+	human var2;
+
+	while(true) {
+		cout << "1. Play.\n";
+		cout << "2. Repeat.\n";
+		cout << "3. Exit.\n";
+		cout << ">>_. ";
+		cin >> var;
+
+		switch (var) 
+		{
+			case 1: 
+			{	
+				
+				
+				choose_stats(var1);
+				choose_stats(var2);
+				
+				battleProcess(var1,var2);
+
+				
 				break;
 			}
-			case 2: 
+			case 2:
+			{
+				var1.ResetStatsAfterBattle();
+				var2.ResetStatsAfterBattle();
+				battleProcess(var1,var2);
+				break;
+			}
+			case 3: 
 			{
 				return 0;
 			}
 		}
 	}
-
-	system("pause");
-	
 	return 0;
 }
